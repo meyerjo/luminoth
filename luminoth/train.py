@@ -60,6 +60,14 @@ def run(config, target='', cluster_spec=None, is_chief=True, job_name=None,
             sys.exit(1)
 
         train_image = train_dataset['image']
+
+        mean, var = tf.nn.moments(train_image, axes=[0, 1])
+        std = tf.sqrt(var)
+        mean = tf.expand_dims(tf.expand_dims(mean, 0), 0)
+        std = tf.expand_dims(tf.expand_dims(std, 0), 0)
+        train_image = (train_image - mean) / std
+
+
         train_filename = train_dataset['filename']
         train_bboxes = train_dataset['bboxes']
 
