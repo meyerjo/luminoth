@@ -111,14 +111,21 @@ class ObjectDetectionDataset(BaseDataset):
         image_shape = tf.stack([height, width, 3])
         image = tf.reshape(image, image_shape)
 
-        label = self._sparse_to_tensor(sequence_example['label'])
-        xmin = self._sparse_to_tensor(sequence_example['xmin'])
-        xmax = self._sparse_to_tensor(sequence_example['xmax'])
-        ymin = self._sparse_to_tensor(sequence_example['ymin'])
-        ymax = self._sparse_to_tensor(sequence_example['ymax'])
+        # label = self._sparse_to_tensor(sequence_example['label'])
+        # xmin = self._sparse_to_tensor(sequence_example['xmin'])
+        # xmax = self._sparse_to_tensor(sequence_example['xmax'])
+        # ymin = self._sparse_to_tensor(sequence_example['ymin'])
+        # ymax = self._sparse_to_tensor(sequence_example['ymax'])
+
+        label = self._sparse_to_tensor(sequence_example['label'], axis=[])
+        xmin = self._sparse_to_tensor(sequence_example['xmin'], axis=[])
+        xmax = self._sparse_to_tensor(sequence_example['xmax'], axis=[])
+        ymin = self._sparse_to_tensor(sequence_example['ymin'], axis=[])
+        ymax = self._sparse_to_tensor(sequence_example['ymax'], axis=[])
 
         # Stack parsed tensors to define bounding boxes of shape (num_boxes, 5)
         bboxes = tf.stack([xmin, ymin, xmax, ymax, label], axis=1)
+        bboxes = tf.reshape(bboxes, [-1, 5])
 
         image, bboxes, preprocessing_details = self.preprocess(image, bboxes)
 
@@ -234,6 +241,10 @@ class ObjectDetectionDataset(BaseDataset):
         return resized['image'], resized.get('bboxes'), resized['scale_factor']
 
     def _sparse_to_tensor(self, sparse_tensor, dtype=tf.int32, axis=[1]):
+        if not axis:
+            return tf.cast(
+                tf.sparse_tensor_to_dense(sparse_tensor), dtype
+            )
         return tf.squeeze(
             tf.cast(tf.sparse_tensor_to_dense(sparse_tensor), dtype), axis=axis
         )
