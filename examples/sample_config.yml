@@ -3,14 +3,28 @@ train:
   run_name: my-run
   # Directory in which model checkpoints & summaries (for Tensorboard) will be saved.
   job_dir: jobs/
+  image_vis: debug
+  debug: True
+  batch_size: 1
+  full_trace: True
+  no_log: False
+  tf_debug: False
+
+  learning_rate:
+    learning_rate: 0.0001
+
+  optimizer:
+    type: adam
 
 dataset:
   type: object_detection
   # From which directory to read the dataset.
   dir: datasets/voc/tf
+  image_vis: debug
 
 model:
   type: fasterrcnn
   network:
     # Total number of classes to predict.
-    num_classes: 20
+    num_classes: 10
+  image_vis: debug
